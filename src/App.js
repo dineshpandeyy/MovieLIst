@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
@@ -6,17 +6,19 @@ const average = (arr) =>
 const KEY = 'e18b0faf'
 
 export default function App() {
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const query = "interstellar"
+  const tempQuery = "interstellar"
 
-  useState(function() {
+  useEffect(function() {
     async function fetchMovies() {
-      try {setLoading(true)
-      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}
-        `);
+      try {
+        setLoading(true)
+        setError("")
+      const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
 
         if(!res.ok) {
           throw new Error("Something went wrong when fetch in error")
@@ -36,13 +38,13 @@ export default function App() {
         setLoading(false)
       }}
     fetchMovies();
-  }, []);
+  }, [query]);
 
   return (
     <>
       <NavBar movies={movies} > 
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery}/>
         <NumResult movies={movies} />
       </NavBar >
 
@@ -86,8 +88,7 @@ function Logo() {
   )
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({query, setQuery}) {
   return (
     <input
       className="search"
